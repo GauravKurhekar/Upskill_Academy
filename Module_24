@@ -87,4 +87,25 @@ INSERT INTO table_source (productKey, SalesDate, SalesAmount) VALUES
 (6, '2024-05-15', 150.75),
 (7, '2024-06-20', 200.50),
 (8, '2024-07-25', 300.10);
+================================================================================
+24.8- SCD Type-1
+CREATE TABLE SCD_Type1_Emp (
+    EmpID INT,    
+    Name VARCHAR(100), 
+    Country VARCHAR(50) , 
+    Department VARCHAR(50) 
+);
+
+-- Insert sample rows
+INSERT INTO SCD_Type1_Emp (EmpID, Name, Country, Department)
+VALUES
+    (101, 'Amit Sharma', 'India', 'IT'),
+    (102, 'Ashwini Singh', 'India', 'Electronic');
+
+select * from SCD_Type1_Emp;
+---------------------------------
+106, Anjali Mehta, India, Computer
+107, Mahesh Iche, US, Service Desk
+108, Mayur Shinde, UK, Software
+109, Sagar Kale, US, Service Desk
 
