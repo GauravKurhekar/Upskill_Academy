@@ -1,4 +1,4 @@
-Joins
+--Joins
 CREATE TABLE Emp (
     ID INT,
     Name VARCHAR(50),
