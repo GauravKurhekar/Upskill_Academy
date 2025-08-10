@@ -1,1 +1,172 @@
+26- Synapse Analytics
+Step 1- Create database(sales_database) in data tabselect serverless
+Step 2- Go to develop tabSql scriptuse database(sales_database)
+Step 3- Read CSV Using OPENROWSET
+
+SELECT *
+FROM OPENROWSET(
+    BULK 'https://adlspracticestorage.dfs.core.windows.net/new-container/synapse_sales_data.csv',
+    FORMAT = 'CSV',
+    PARSER_VERSION = '2.0',
+    HEADER_ROW = TRUE
+) AS sales_data;
+-------------------------------------
+Step 4- Create schema
+CREATE SCHEMA dim;
+CREATE SCHEMA fact;
+-------------------------------------
+Step 5- Create Views for Dimension Tables
+-- 1. dim_customer
+CREATE VIEW dim.customer AS
+SELECT DISTINCT
+    CustomerID,
+    CustomerName
+FROM OPENROWSET(
+    BULK 'https://adlspracticestorage.dfs.core.windows.net/new-container/synapse_sales_data.csv',
+    FORMAT = 'CSV',
+    PARSER_VERSION = '2.0',
+    HEADER_ROW = TRUE
+) AS sales_data;
+
+
+-- 2. dim_product
+CREATE VIEW dim.product AS
+SELECT DISTINCT
+    ProductID,
+    ProductName,
+    ProductCategory
+FROM OPENROWSET(
+    BULK 'https://adlspracticestorage.dfs.core.windows.net/new-container/synapse_sales_data.csv',
+    FORMAT = 'CSV',
+    PARSER_VERSION = '2.0',
+    HEADER_ROW = TRUE
+) AS sales_data;
+
+-- 3. dim_store
+CREATE VIEW dim.store AS
+SELECT DISTINCT
+    StoreID,
+    StoreLocation
+FROM OPENROWSET(
+    BULK 'https://adlspracticestorage.dfs.core.windows.net/new-container/synapse_sales_data.csv',
+    FORMAT = 'CSV',
+    PARSER_VERSION = '2.0',
+    HEADER_ROW = TRUE
+) AS sales_data;
+
+-- 4. dim_time
+CREATE VIEW dim.time AS
+SELECT DISTINCT
+    CAST(SaleDate AS DATE) AS SaleDate,
+    YEAR(SaleDate) AS Year,
+    MONTH(SaleDate) AS Month,
+    DAY(SaleDate) AS Day
+FROM OPENROWSET(
+    BULK 'https://adlspracticestorage.dfs.core.windows.net/new-container/synapse_sales_data.csv',
+    FORMAT = 'CSV',
+    PARSER_VERSION = '2.0',
+    HEADER_ROW = TRUE
+) AS sales_data;
+
+-- 5. dim_sales_type
+CREATE VIEW dim.sales_type AS
+SELECT DISTINCT
+    SalesType
+FROM OPENROWSET(
+    BULK 'https://adlspracticestorage.dfs.core.windows.net/new-container/synapse_sales_data.csv',
+    FORMAT = 'CSV',
+    PARSER_VERSION = '2.0',
+    HEADER_ROW = TRUE
+) AS sales_data;
+-------------------------------------
+Step 6- Create View for Fact Table
+CREATE VIEW fact.sales AS
+SELECT
+    SaleID,
+    CustomerID,
+    ProductID,
+    StoreID,
+    CAST(SaleDate AS DATE) AS SaleDate,
+    SalesType,
+    Quantity,
+    UnitPrice
+FROM OPENROWSET(
+    BULK 'https://adlspracticestorage.dfs.core.windows.net/new-container/synapse_sales_data.csv',
+    FORMAT = 'CSV',
+    PARSER_VERSION = '2.0',
+    HEADER_ROW = TRUE
+) AS sales_data;
+-------------------------------------
+Step 7- Analytical Queries
+1. 🔍 Total Sales by Product Category
+SELECT 
+    p.ProductCategory,
+    SUM(f.Quantity * f.UnitPrice) AS TotalSales
+FROM fact.sales f
+JOIN dim.product p ON f.ProductID = p.ProductID
+GROUP BY p.ProductCategory;
+
+2. 🏬 Sales by Store Location
+SELECT 
+    s.StoreLocation,
+    COUNT(*) AS Transactions,
+    SUM(f.Quantity * f.UnitPrice) AS Revenue
+FROM fact.sales f
+JOIN dim.store s ON f.StoreID = s.StoreID
+GROUP BY s.StoreLocation;
+
+3. 👤 Top Customers by Spend
+SELECT 
+    c.CustomerName,
+    SUM(f.Quantity * f.UnitPrice) AS TotalSpend
+FROM fact.sales f
+JOIN dim.customer c ON f.CustomerID = c.CustomerID
+GROUP BY c.CustomerName
+ORDER BY TotalSpend DESC
+
+4. 🛒 Sales Type Distribution
+SELECT 
+    st.SalesType,
+    COUNT(*) AS TransactionCount
+FROM fact.sales f
+JOIN dim.sales_type st ON f.SalesType = st.SalesType
+GROUP BY st.SalesType;
+
+-------------------------------------
+Step 8- To store query results into your ADLS container (gold-container in adlspracticestorage), you have a few options depending on your setup. Let’s walk through the easiest and most practical method using CREATE EXTERNAL TABLE AS SELECT (CTAS).
+1. 🔐 Create a Master Key (if not already done)
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'YourStrongPassword@123';
+2. 🔑 Create a Database Scoped Credential
+CREATE DATABASE SCOPED CREDENTIAL adls_credential
+WITH IDENTITY = 'Managed Identity';
+3. 📁 Create an External Data Source
+CREATE EXTERNAL DATA SOURCE adls_gold
+WITH (
+    LOCATION = 'https://adlspracticestorage.dfs.core.windows.net/gold-container',
+    CREDENTIAL = adls_credential
+);
+4.Create External file format
+CREATE EXTERNAL FILE FORMAT format_parquet
+WITH (
+    FORMAT_TYPE = PARQUET
+);
+-------------------------------------
+Step 9- Step-by-Step: Store Query Results Using CTAS
+CREATE EXTERNAL TABLE gold_product_sales (
+    ProductCategory VARCHAR(100) COLLATE Latin1_General_100_BIN2_UTF8,
+    TotalSales FLOAT
+)
+WITH (
+    LOCATION = 'product_sales/',
+    DATA_SOURCE = adls_gold,
+    FILE_FORMAT = format_parquet
+    
+)
+AS
+SELECT 
+    p.ProductCategory,
+    SUM(f.Quantity * f.UnitPrice) AS TotalSales
+FROM fact.sales f
+JOIN dim.product p ON f.ProductID = p.ProductID
+GROUP BY p.ProductCategory;
 
