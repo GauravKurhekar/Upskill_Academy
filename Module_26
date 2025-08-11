@@ -1,4 +1,9 @@
 26- Synapse Analytics
+
+--Storage_adls_name = adlspracticestorage
+--Container_name = new-container
+--File_name = synapse_sales_data.csv
+
 Step 1- Create database(sales_database) in data tabselect serverless
 Step 2- Go to develop tabSql scriptuse database(sales_database)
 Step 3- Read CSV Using OPENROWSET
