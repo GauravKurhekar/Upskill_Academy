@@ -20,3 +20,30 @@ cols = ['ID', 'salary', 'department']
 department = spark.createDataFrame(data, cols)
 
 display(department)
+=========================================================
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+spark = SparkSession.builder.getOrCreate()
+
+# Left DataFrame (df_left)
+data_left = [
+    (1, "Alice"),
+    (2, "Bob"),
+    (3, "Charlie"),
+    (4, "David")
+]
+df_left = spark.createDataFrame(data_left, ["id", "name"])
+
+# Right DataFrame (df_right)
+data_right = [
+    (2, "Sales"),
+    (3, "IT"),
+    (5, "HR")
+]
+df_right = spark.createDataFrame(data_right, ["id", "dept"])
+
+# Show both
+df_left.show()
+df_right.show()
+
