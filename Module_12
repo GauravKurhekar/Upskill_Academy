@@ -39,3 +39,56 @@ df_dept = spark.createDataFrame(data, columns)
 # Show the DataFrame
 display(df_dept)
 # 12.3-Using Spark SQL for transformations
+
+====================================================
+12.8.1- How to Create Managed table
+# 1- By using SQL
+%sql
+CREATE TABLE managed_employee (
+    ID INT,
+    NAME STRING,
+    SALARY INT
+);
+
+INSERT INTO managed_employee VALUES (1, 'John', 70000);
+SELECT * FROM managed_employee;
+
+# OR
+
+# 2- By using python
+df.write.mode("overwrite").saveAsTable("managed_employee")
+
+# Access table using python
+spark.table("managed_employee").show()
+
+ ---------------------------------------------
+%sql      --Create managed table
+CREATE TABLE managed_employee (
+    ID INT,
+    NAME STRING,
+    SALARY INT
+);
+
+INSERT INTO managed_employee VALUES (1, 'John', 70000);
+SELECT * FROM managed_employee;
+==================================================
+12.8.3- How to Create External table
+%sql
+-- By using SQL
+CREATE TABLE external_employee (
+    ID INT,
+    NAME STRING,
+    SALARY INT
+)
+USING CSV
+OPTIONS (
+    path '/mnt/data/employees/',
+    header 'true',
+    inferSchema 'true'
+);
+--Access using SQL
+SELECT * FROM external_employee;
+
+--OR
+--Access using Python
+spark.table("external_employee").show()
