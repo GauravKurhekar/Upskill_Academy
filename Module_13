@@ -1,16 +1,23 @@
 # 13.5.1-Mounting via Access Key
-dbutils.fs.mount(
-  source = "wasbs://<container>@<storage_account>.blob.core.windows.net/",
-  mount_point = "/mnt/Access_container",
-  extra_configs = {"fs.azure.account.key.<storage_account>.blob.core.windows.net": "<access_key>"}
-)
+spark.conf.set(
+    "fs.azure.account.key.<storage-account>.dfs.core.windows.net",
+    dbutils.secrets.get(scope="<scope>", key="<storage-account-access-key>"))
+
+    # OR 
+
+spark.conf.set(
+    "fs.azure.account.key.<storage-account>.dfs.core.windows.net","<Access_Token>")
 ---------------------------------------------
 13.5.2 -Mounting via SAS token
-dbutils.fs.mount(
-  source = "wasbs://<container>@<storage_account>.blob.core.windows.net/",
-  mount_point = "/mnt/<mount-name>",
-  extra_configs = {"fs.azure.sas.<container>.<storage_account>.blob.core.windows.net": "<sas_token>"}
-)
+spark.conf.set("fs.azure.account.auth.type.<storage-account>.dfs.core.windows.net", "SAS")
+spark.conf.set("fs.azure.sas.token.provider.type.<storage-account>.dfs.core.windows.net", "org.apache.hadoop.fs.azurebfs.sas.FixedSASTokenProvider")
+spark.conf.set("fs.azure.sas.fixed.token.<storage-account>.dfs.core.windows.net", dbutils.secrets.get(scope="<scope>", key="<sas-token-key>"))
+
+# OR 
+
+spark.conf.set("fs.azure.account.auth.type.<storage-account>.dfs.core.windows.net", "SAS")
+spark.conf.set("fs.azure.sas.token.provider.type.<storage-account>.dfs.core.windows.net", "org.apache.hadoop.fs.azurebfs.sas.FixedSASTokenProvider")
+spark.conf.set("fs.azure.sas.fixed.token.<storage-account>.dfs.core.windows.net", "<sas-token-key>")
 ------------------------------------------------
 13.3.6- Service Principal with OAuth2 (Recommended for Enterprise Use)
 # Replace <client_id> in 3rd line using client_id with double quote("")
