@@ -26,6 +26,7 @@ filtered_df.write.mode("overwrite").saveAsTable("cleaned_data")
 
 print("Data transformed successfully.")
 
+
 # Notebook 3: report_data
 
 df = spark.table("cleaned_data")
