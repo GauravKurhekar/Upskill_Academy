@@ -140,10 +140,12 @@ GROUP BY st.SalesType;
 -------------------------------------
 Step 8- To store query results into your ADLS container (gold-container in adlspracticestorage), you have a few options depending on your setup. Let’s walk through the easiest and most practical method using CREATE EXTERNAL TABLE AS SELECT (CTAS).
 1. 🔐 Create a Master Key (if not already done)
-CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'YourStrongPassword@123';
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Admin@123';
+
 2. 🔑 Create a Database Scoped Credential
 CREATE DATABASE SCOPED CREDENTIAL adls_credential
 WITH IDENTITY = 'Managed Identity';
+
 3. 📁 Create an External Data Source
 CREATE EXTERNAL DATA SOURCE adls_gold
 WITH (
