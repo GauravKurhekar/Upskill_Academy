@@ -7,6 +7,13 @@ spark.conf.set(
 
 spark.conf.set(
     "fs.azure.account.key.<storage-account>.dfs.core.windows.net","<Access_Token>")
+
+df = (spark.read
+      .format("csv")
+      .option("header", True)
+      .option("inferSchema", True)
+      .load("path"))
+display(df)
 ---------------------------------------------
 13.5.2 -Mounting via SAS token
 spark.conf.set("fs.azure.account.auth.type.<storage-account>.dfs.core.windows.net", "SAS")
@@ -36,6 +43,13 @@ dbutils.fs.mount(
   mount_point = "/mnt/<mount_name>",
   extra_configs = configs
 )
+# display the data
+df = (spark.read
+      .format("csv")
+      .option("header", True)
+      .option("inferSchema", True)
+      .load("/mnt/mount_folder"))
+display(df)
 ----------------------------------------------------
 # Secret Scope using Access key
 spark.conf.set(
