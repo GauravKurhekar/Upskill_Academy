@@ -1,0 +1,73 @@
+data = [
+    (101,"Amit","IT","Pune","Active",60000),
+    (102,"Ravi","HR","Bangalore","Active",45000),
+    (103,"Neha","Finance","Pune","Inactive",52000),
+    (104,"Sonal","IT","Hyderabad","Active",70000),
+    (105,"Rahul","HR","Chennai","Active",40000),
+    (106,"Ankit","Finance","Pune","Active",55000),
+    (107,"Pooja","IT","Bangalore","Inactive",65000),
+    (108,"Vikas","HR","Hyderabad","Active",48000),
+    (109,"Sneha","Finance","Chennai","Active",53000),
+    (110,"Kunal","IT","Pune","Active",72000),
+    (111,"Deepa","HR","Pune","Inactive",46000),
+    (112,"Arjun","Finance","Bangalore","Active",58000),
+    (113,"Meena","IT","Chennai","Active",69000),
+    (114,"Rohit","HR","Hyderabad","Active",42000),
+    (115,"Nisha","Finance","Pune","Active",61000),
+    (116,"Suresh","IT","Bangalore","Inactive",75000),
+    (117,"Komal","HR","Chennai","Active",39000),
+    (118,"Manoj","Finance","Hyderabad","Active",54000),
+    (119,"Kriti","IT","Pune","Active",68000),
+    (120,"Ajay","HR","Bangalore","Active",47000),
+    (121,"Rina","Finance","Chennai","Inactive",56000),
+    (122,"Varun","IT","Hyderabad","Active",71000),
+    (123,"Shilpa","HR","Pune","Active",43000),
+    (124,"Nitin","Finance","Bangalore","Active",59000),
+    (125,"Isha","IT","Chennai","Active",66000)
+]
+
+columns = ["emp_id","emp_name","dept","location","status","salary"]
+
+df = spark.createDataFrame(data, columns)
+display(df)
+
+# Clear existing widgets (good practice)
+dbutils.widgets.removeAll()
+
+# Text widget
+dbutils.widgets.text("dept", "IT", "Enter Department")
+
+# Dropdown widget
+dbutils.widgets.dropdown(
+    "status",
+    "Active",
+    ["Active", "Inactive"],
+    "Employee Status"
+)
+
+# Multiselect widget
+dbutils.widgets.multiselect(
+    "location",
+    "Pune",
+    ["Pune", "Bangalore", "Hyderabad", "Chennai"],
+    "Location"
+)
+
+
+# Run this in new notebooks
+# Create year selection widget
+dbutils.widgets.dropdown("year", "2024", ["2022", "2023", "2024", "2025"], "Select Year")
+
+# Get selected year
+selected_year = dbutils.widgets.get("year")
+
+# Use it to filter data
+df = spark.read.option("header", True).csv("/mnt/sales/orders.csv")
+df_filtered = df.filter(df.OrderDate.startswith(selected_year))
+df_filtered.show()
+
+dbutils.widgets.dropdown("year", "2024", ["2022", "2023", "2024"], "Select Year")
+selected_year = dbutils.widgets.get("year")
+
+orders_df.filter(col("Order_Year") == int(selected_year)).show()
+
