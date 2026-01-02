@@ -2,7 +2,7 @@ Question- Workflow in databricks
 # Notebook 1: ingest_data
 
 # Use a default path to read the uploaded file
-csv_path = "/FileStore/tables/EmpPune.csv"
+csv_path = "/Volumes/workspace/default/upskill_volume/EmpPune.csv"
 
 # Read the CSV file into a DataFrame
 df = spark.read.option("header", True).csv(csv_path)
