@@ -64,3 +64,37 @@ display(join_table)
 ---------------------------
 # Run Notebook1_Producer and Notebook2_Consumer
 # Note- This will work only in Enterprise Edition
+
+=================================================================
+21.3- SQL Warehouse in Databricks
+create database new_test_db;
+use new_test_db;
+
+CREATE TABLE IF NOT EXISTS employee (
+    emp_id INT,
+    emp_name STRING,
+    department STRING,
+    salary DOUBLE,
+    join_date DATE
+);
+INSERT INTO employee VALUES
+(101, 'Amit Sharma', 'Data Engineering', 85000, '2022-01-10'),
+(102, 'Neha Verma', 'Analytics', 78000, '2021-11-05'),
+(103, 'Rahul Mehta', 'Data Engineering', 92000, '2023-03-18'),
+(104, 'Priya Singh', 'BI', 70000, '2020-07-25'),
+(105, 'Suresh Kumar', 'Platform', 88000, '2022-09-12');
+select * from employee;
+
+==============================================================
+21.4 Devops for databricks
+# Code for Main Branch (Initial Version)
+
+print("Welcome to Upskill Academy")
+print("Learning Azure Data Engineering")
+
+# Code for Sub-Branch (Feature / Change)
+print("New lines are added")
+print("will check if how code gets merge from main branch to sub-branch")
+print("Git integration with Azure Databricks")
+
+
