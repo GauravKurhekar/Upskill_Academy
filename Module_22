@@ -1,4 +1,4 @@
-24.3-First Pipeline: Azure SQL DB to ADLS
+23.1-First Pipeline: Azure SQL DB to ADLS
 CREATE DATABASE PracticeDB;
 GO
 USE PracticeDB;
