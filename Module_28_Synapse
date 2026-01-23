@@ -140,7 +140,14 @@ GROUP BY st.SalesType;
 -------------------------------------
 Step 8- To store query results into your ADLS container (gold-container in adlspracticestorage), you have a few options depending on your setup. Let’s walk through the easiest and most practical method using CREATE EXTERNAL TABLE AS SELECT (CTAS).
 --1. 🔐 Create a Master Key (if not already done)
-CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Admin@123';
+IF NOT EXISTS (
+    SELECT * 
+    FROM sys.symmetric_keys 
+    WHERE name = '##MS_DatabaseMasterKey##'
+)
+BEGIN
+    CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Admin@123';
+END;
 
 --2. 🔑 Create a Database Scoped Credential
 CREATE DATABASE SCOPED CREDENTIAL adls_credential
@@ -153,17 +160,16 @@ WITH (
     CREDENTIAL = adls_credential
 );
 
+--Note- create container in adls called ‘gold-container’ 
+
 --4.Create External file format
 CREATE EXTERNAL FILE FORMAT format_parquet
 WITH (
     FORMAT_TYPE = PARQUET
 );
--------------------------------------
---Step 9- Step-by-Step: Store Query Results Using CTAS
-CREATE EXTERNAL TABLE gold_product_sales (
-    ProductCategory VARCHAR(100) COLLATE Latin1_General_100_BIN2_UTF8,
-    TotalSales FLOAT
-)
+
+Step 17- Step-by-Step: Store Query Results Using CTAS
+CREATE EXTERNAL TABLE gold_product_sales 
 WITH (
     LOCATION = 'product_sales/',
     DATA_SOURCE = adls_gold,
@@ -177,4 +183,16 @@ SELECT
 FROM fact.sales f
 JOIN dim.product p ON f.ProductID = p.ProductID
 GROUP BY p.ProductCategory;
+------------------------------------------------
+Create External File Format for CSV (Serverless)
+CREATE EXTERNAL FILE FORMAT csv_format_v2
+WITH (
+    FORMAT_TYPE = DELIMITEDTEXT,
+    FORMAT_OPTIONS (
+        FIELD_TERMINATOR = ',',
+        STRING_DELIMITER = '"',
+        FIRST_ROW = 2,
+        USE_TYPE_DEFAULT = TRUE
+    )
+);
 
